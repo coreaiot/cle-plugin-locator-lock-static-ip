@@ -3,7 +3,7 @@ export * from './status';
 export * from './i18n';
 
 import { Context } from 'koa';
-import { Plugin, Utils, generateDocs } from './lib';
+import { Plugin, Utils, generateDocs } from '@lib';
 import { findLocator, lockStaticIp, unlockStaticIp } from './locatorLockStaticIp';
 
 export async function init(self: Plugin, utils: Utils) {
@@ -12,9 +12,6 @@ export async function init(self: Plugin, utils: Utils) {
     return config.apiPrefix + p;
   };
   self.status.status = 'idle';
-  setInterval(() => {
-    utils.updateStatus(self);
-  }, 1000);
 
   const errMsgBuzy = 'Busy now. Try later!';
 
@@ -31,7 +28,6 @@ export async function init(self: Plugin, utils: Utils) {
         return;
       }
       self.status.status = 'requesting';
-      utils.updateStatus(self);
       try {
         const locator = findLocator(utils, ctx);
         await lockStaticIp(utils, locator, 5000);
@@ -42,7 +38,6 @@ export async function init(self: Plugin, utils: Utils) {
         ctx.body = e;
       }
       self.status.status = 'idle';
-      utils.updateStatus(self);
     });
 
     router.post(unlockUri, async (ctx: Context) => {
@@ -54,7 +49,6 @@ export async function init(self: Plugin, utils: Utils) {
         return;
       }
       self.status.status = 'requesting';
-      utils.updateStatus(self);
       try {
         const locator = findLocator(utils, ctx);
         await unlockStaticIp(utils, locator, 5000);
@@ -65,7 +59,6 @@ export async function init(self: Plugin, utils: Utils) {
         ctx.body = e;
       }
       self.status.status = 'idle';
-      utils.updateStatus(self);
     });
 
   })
